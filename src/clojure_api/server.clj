@@ -51,4 +51,11 @@
   (start-server))
 
 (start-server)
-(println (test-request :get "/hello"))
+
+(println (test-request :get "/hello?name=nanderson"))
+(println (test-request :post "/task?name=nanderson&status=pendente"))
+(println (test-request :post "/task?name=maria&status=ok"))
+(println (test-request :get "/task"))
+
+(println @store)
+
