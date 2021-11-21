@@ -43,5 +43,12 @@
 (defn test-request [verb url]
   (test/response-for (::http/service-fn @server) verb url))
 
+(defn stop []
+  (http/stop @server))
+
+(defn restart []
+  (stop)
+  (start-server))
+
 (start-server)
 (println (test-request :get "/hello"))
