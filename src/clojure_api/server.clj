@@ -42,7 +42,7 @@
                   ::http/type :jetty
                   ::http/join? false})
 
-(def server (atom nil))
+(defonce server (atom nil))
 
 (defn start-server []
   (reset! server (http/start (http/create-server service-map))))
