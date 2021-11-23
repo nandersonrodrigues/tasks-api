@@ -1,12 +1,18 @@
-(ns clojure-api.server
+ (ns clojure-api.server
   (:require [io.pedestal.http.route :as route]
             [io.pedestal.http :as http]
-            [io.pedestal.test :as test]))
+            [io.pedestal.test :as test]
+            [clojure-api.database :as database]))
 
-(def store (atom {}))
+(defn assoc-store [context]
+  (update context :request assoc :store database/store))
+
+(def db-interceptor
+  {:name :db-interceptor
+   :enter assoc-store})
 
 (defn list-tasks [request]
-  {:status 200 :body @store})
+  {:status 200 :body @(:store request)}) 
 
 (defn create-task-map [uuid name status]
   {:uuid uuid :name name :status status})
@@ -17,7 +23,8 @@
    [uuid (java.util.UUID/randomUUID)
     name (get-in request [:query-params :name])
     status (get-in request [:query-params :status])
-    task (create-task-map uuid name status)]
+    task (create-task-map uuid name status)
+    store (:store request)]
     (swap! store assoc uuid task)
     {:status 200 :body {:mensagem "tarefa registrada com sucesso"
                         :task task}} ))
@@ -27,8 +34,8 @@
 
 (def routes (route/expand-routes
              #{["/hello" :get func-hello :route-name :hello-world]
-               ["/task" :post create-task :route-name :create-task]
-               ["/task" :get list-tasks :route-name :list-tasks]}))
+               ["/task" :post [db-interceptor create-task] :route-name :create-task]
+               ["/task" :get [db-interceptor list-tasks] :route-name :list-tasks]}))
 
 (def service-map {::http/routes routes
                   ::http/port 8081
