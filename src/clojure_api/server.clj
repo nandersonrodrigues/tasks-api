@@ -1,8 +1,8 @@
  (ns clojure-api.server
-  (:require [io.pedestal.http.route :as route]
-            [io.pedestal.http :as http]
-            [io.pedestal.test :as test]
-            [clojure-api.database :as database]))
+   (:require [io.pedestal.http.route :as route]
+             [io.pedestal.http :as http]
+             [io.pedestal.test :as test]
+             [clojure-api.database :as database]))
 
 (defn assoc-store [context]
   (update context :request assoc :store database/store))
@@ -12,7 +12,7 @@
    :enter assoc-store})
 
 (defn list-tasks [request]
-  {:status 200 :body @(:store request)}) 
+  {:status 200 :body @(:store request)})
 
 (defn create-task-map [uuid name status]
   {:uuid uuid :name name :status status})
@@ -27,7 +27,25 @@
     store (:store request)]
     (swap! store assoc uuid task)
     {:status 200 :body {:mensagem "tarefa registrada com sucesso"
-                        :task task}} ))
+                        :task task}}))
+
+(defn delete-task [request]
+  (let [store (:store request)
+        task-id (get-in request [:path-params :id])
+        task-id-uuid (java.util.UUID/fromString task-id)]
+    (swap! store dissoc task-id-uuid)
+    {:status 200 :body {:message "Removido com sucesso"}}))
+
+(defn update-task [request]
+  (let [task-id (get-in request [:path-params :id])
+        task-id-uuid (java.util.UUID/fromString task-id)
+        name (get-in request [:query-params :name])
+        status (get-in request [:query-params :status])
+        task (create-task-map task-id-uuid name status)
+        store (:store request)]
+    (swap! store assoc task-id-uuid task)
+    {:status 200 :body {:message "Tarefa atualizada com sucesso!"}}))
+   
 
 (defn func-hello [request]
   {:status 200 :body (str "Hello World " (get-in request [:query-params :name] "Everybody"))})
@@ -35,7 +53,9 @@
 (def routes (route/expand-routes
              #{["/hello" :get func-hello :route-name :hello-world]
                ["/task" :post [db-interceptor create-task] :route-name :create-task]
-               ["/task" :get [db-interceptor list-tasks] :route-name :list-tasks]}))
+               ["/task" :get [db-interceptor list-tasks] :route-name :list-tasks]
+               ["/task/:id" :delete [db-interceptor delete-task] :route-name :delete-task]
+               ["/task/:id" :patch [db-interceptor update-task] :route-name :update-task]}))
 
 (def service-map {::http/routes routes
                   ::http/port 8081
@@ -66,3 +86,5 @@
 (println (test-request :post "/task?name=nanderson&status=pendente"))
 (println (test-request :post "/task?name=maria&status=ok"))
 (println (test-request :get "/task"))
+(println (test-request :delete "/task/98f1af03-b3a7-4100-a5ba-734b25e58050"))
+(println (test-request :patch "/task/8faa1230-326f-4acd-9272-da08facffb05?name=Joao&status=pendente"))
