@@ -2,7 +2,8 @@
    (:require [io.pedestal.http.route :as route]
              [io.pedestal.http :as http]
              [io.pedestal.test :as test]
-             [clojure-api.database :as database]))
+             [clojure-api.database :as database]
+             [io.pedestal.interceptor :as i]))
 
 (defn assoc-store [context]
   (update context :request assoc :store database/store))
@@ -52,20 +53,24 @@
 
 (def routes (route/expand-routes
              #{["/hello" :get func-hello :route-name :hello-world]
-               ["/task" :post [db-interceptor create-task] :route-name :create-task]
-               ["/task" :get [db-interceptor list-tasks] :route-name :list-tasks]
-               ["/task/:id" :delete [db-interceptor delete-task] :route-name :delete-task]
-               ["/task/:id" :patch [db-interceptor update-task] :route-name :update-task]}))
+               ["/task" :post [create-task] :route-name :create-task]
+               ["/task" :get [list-tasks] :route-name :list-tasks]
+               ["/task/:id" :delete [delete-task] :route-name :delete-task]
+               ["/task/:id" :patch [update-task] :route-name :update-task]}))
 
 (def service-map {::http/routes routes
                   ::http/port 8081
                   ::http/type :jetty
                   ::http/join? false})
 
+(def service-map-with-interceptor (-> service-map
+                                       (http/default-interceptors)
+                                       (update ::http/interceptors conj (i/interceptor db-interceptor))))
+
 (defonce server (atom nil))
 
 (defn start-server []
-  (reset! server (http/start (http/create-server service-map))))
+  (reset! server (http/start (http/create-server service-map-with-interceptor))))
 
 (defn test-request [verb url]
   (test/response-for (::http/service-fn @server) verb url))
@@ -86,5 +91,5 @@
 (println (test-request :post "/task?name=nanderson&status=pendente"))
 (println (test-request :post "/task?name=maria&status=ok"))
 (println (test-request :get "/task"))
-(println (test-request :delete "/task/98f1af03-b3a7-4100-a5ba-734b25e58050"))
+(println (test-request :delete "/task/7dc35f3c-7dea-44cf-9135-9819ac8828ce"))
 (println (test-request :patch "/task/8faa1230-326f-4acd-9272-da08facffb05?name=Joao&status=pendente"))
