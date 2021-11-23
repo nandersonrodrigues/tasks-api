@@ -50,19 +50,19 @@
 (defn test-request [verb url]
   (test/response-for (::http/service-fn @server) verb url))
 
-(defn stop []
+(defn stop-server []
   (http/stop @server))
 
-(defn restart []
-  (stop)
+(defn restart-server []
+  (stop-server)
   (start-server))
 
+
 (start-server)
+(restart-server)
+(stop-server)
 
 (println (test-request :get "/hello?name=nanderson"))
 (println (test-request :post "/task?name=nanderson&status=pendente"))
 (println (test-request :post "/task?name=maria&status=ok"))
 (println (test-request :get "/task"))
-
-(println @store)
-
