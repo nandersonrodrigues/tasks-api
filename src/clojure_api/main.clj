@@ -1,17 +1,19 @@
 (ns clojure-api.main
-  (:require 
-            [clojure-api.server :as server]))
+  (:require
+   [clojure-api.server :as server]
+   [clojure-api.utils :refer [print-pretty-json]]))
 
 (defn start-api []
   (server/start-server)
   ;(server/stop-server)
   ;(server/restart-server)
 
-  (server/test-request :get "/hello?name=nanderson")
-  (server/test-request :post "/task?name=nanderson&status=pendente")
-  (server/test-request :post "/task?name=maria&status=ok")
-  (server/test-request :get "/task")
-  (server/test-request :delete "/task/7dc35f3c-7dea-44cf-9135-9819ac8828ce")
-  (server/test-request :patch "/task/8faa1230-326f-4acd-9272-da08facffb05?name=Joao&status=pendente"))
+  (print-pretty-json (server/test-request :get "/hello?name=maria"))
+  (print-pretty-json (server/test-request :post "/task?name=play&status=pending"))
+  (print-pretty-json (server/test-request :post "/task?name=eat&status=ok"))
+  (print-pretty-json (server/test-request :get "/task"))
+  (print-pretty-json (server/test-request :delete "/task/efa1b65e-8b37-4b94-8aa3-38182e21a87a"))
+  (print-pretty-json (server/test-request :patch "/task/e6669bcd-cfa8-4902-9a94-3f4eed42c006?name=run&status=pending"))
+  )
 
 
