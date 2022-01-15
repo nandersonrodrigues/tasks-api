@@ -1,7 +1,7 @@
- (ns clojure-api.server
+ (ns tasks-api.server
    (:require [io.pedestal.http :as http]
              [io.pedestal.interceptor :as i]
-             [clojure-api.controller :as controller]
+             [tasks-api.controller :as controller]
              [io.pedestal.test :as test]))
 
 

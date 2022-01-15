@@ -1,7 +1,7 @@
-(ns clojure-api.main
+(ns tasks-api.main
   (:require
-   [clojure-api.server :as server]
-   [clojure-api.utils :refer [print-pretty-json]]))
+   [tasks-api.server :as server]
+   [tasks-api.utils :refer [print-pretty-json]]))
 
 (defn start-api []
   (server/start-server)

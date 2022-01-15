@@ -1,4 +1,4 @@
-(defproject clojure-api "0.1.0-SNAPSHOT"
+(defproject tasks-api "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
@@ -9,5 +9,5 @@
                  [io.pedestal/pedestal.jetty "0.5.7"]
                  [org.clojure/data.json "0.2.6"]
                  [org.slf4j/slf4j-simple "1.7.28"]]
-  :repl-options {:init-ns clojure-api.main}
-  :main clojure-api.main/start-api)
+  :repl-options {:init-ns tasks-api.main}
+  :main tasks-api.main/start-api)

@@ -1,5 +1,5 @@
-(ns clojure-api.controller
-  (:require [clojure-api.database :as database]
+(ns tasks-api.controller
+  (:require [tasks-api.database :as database]
             [io.pedestal.http.route :as route]))
 
 
